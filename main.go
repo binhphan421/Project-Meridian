@@ -1,25 +1,27 @@
 package main
 
 import (
+	. "Meridian/ArticleClass"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
 /**
-* PROGRESS: Basic get call to grab content from RSS feed
+* PROGRESS: Basic Version of Article Class created
 
  */
 
 /**
-* TODO: Create article struct to hold (url, title, description)
+* TODO: Update Article Class to Support XML Marshalling
 		List of new struct
 		UI to display new struct
 		Support for other news sites, maybe handler (espn handler, bleacher report handler, etc)
 */
 
 func main() {
-	fmt.Println("Project Meridian: V 0.1 Alpha")
+	fmt.Println("Project Meridian: V 0.11 Alpha")
 	fmt.Println("Project Meridian: Pulling Content from ESPN NBA RSS FEED")
 	response, error := http.Get("http://www.espn.com/espn/rss/nba/news")
 
@@ -35,5 +37,12 @@ func main() {
 		fmt.Println("Project Meridian: ERROR At READALL of ESPN RSS FEED CALL")
 	}
 
-	fmt.Println("\nRSS CONTENT\n\n\n" + string(body))
+	//fmt.Println("\nRSS CONTENT\n\n\n" + string(body))
+	var articles Article
+
+	fmt.Println("Project Meridian: UNMARSHALING XML CONTENT INTO ARTICLE STRUCT")
+	fmt.Println(string(body))
+	xml.Unmarshal(body, &articles)
+
+	fmt.Println("ARTICLE TITLE" + articles.ArticleTitle)
 }
