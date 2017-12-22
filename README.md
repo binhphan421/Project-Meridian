@@ -1,14 +1,11 @@
 **Project Meridian**
 
-* Progress: Basic Retrival of ESPN articles from RSS feeds
-* Goal: Abstract a news/distribution site ex.
-    * NewsSourceClass
-        * RetrieveContent
-        * PrintContent
-        * OpenContentInBrowser
-        * ESPN will inherit from this struct and override retrieveContent
-            * But thats the thing, from all documentation, golang is not a heavy object oriented programming language
-            * Research inheritance in GoLang
-            * Is it worth making a structure like this?
+* Progress: Converting Meridian to Server based Crawler
+* Goal: 
+    * Create a crawler that will reside on a server
+        * 30 minute crawl limit on request
+        * Recrawl every 1-2 hrs
+        * Save article meta data to Google DB Platform (Ethereal)
+    * Create Client (Zen) to Pull Articles from DB (Ethereal)
     * GoLangUI
         * Research, if and what are GoLang UI libraries
