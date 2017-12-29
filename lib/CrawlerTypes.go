@@ -4,46 +4,97 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 )
 
+/*Article - holds all article meta data that will be sent to DB for storage
+ *param -
+ */
+type Article struct {
+	articleName    string
+	articleDate    string   //TODO: Research golang Time and replace string with that if possible
+	articleAuthor  []string //Array to check for potential of multiple authors on an article
+	articleLink    string
+	articleSummary string
+	articleSource  string
+}
+
 type Source struct {
-	sourceName string
-	sourceLink string
+	sourceName    string
+	sourceLinks   []string
+	sourceRegexes []string
 }
 
 type ESPN struct {
 	Source
+	apiKey string
 }
 
 func NewESPN() ESPN {
+	//Set Basic Seller Varibles
 	result := ESPN{}
 	result.sourceName = "ESPN"
-	result.sourceLink = "http://www.espn.com/espn/rss/nba/news"
+	result.apiKey = "26714e095d154b4fabf953a5aefc684f" //newsApi
+
+	//Set SourceLinks - Add any links to pull content from in this array
+	result.sourceLinks = append(result.sourceLinks, "http://www.espn.com/espn/rss/nba/news")
+	result.sourceLinks = append(result.sourceLinks,
+		"https://newsapi.org/v2/everything?q=nba&sources=espn&sortBy=publishedAt&apiKey="+result.apiKey)
+
+	//Set SourceRegexes - Add any regexes to run on content here
+	result.sourceRegexes = append(result.sourceRegexes, "http://www.espn.com/espn/rss/nba/news")
+	result.sourceRegexes = append(result.sourceRegexes, "http://www.espn.com/espn/rss/nba/news")
+
 	return result
 }
 
+/* JS
+var url = 'https://newsapi.org/v2/everything?' +
+          'q=Apple&' +
+          'from=2017-12-25&' +
+          'sortBy=popularity&' +
+          'apiKey=26714e095d154b4fabf953a5aefc684f';
+*/
 func (s *Source) RetrieveSearchContent(client *http.Client) string {
-	response, errorDescription := client.Get(s.sourceLink)
+	result := "****************************CONTENT**************************\n"
 
-	if !CheckErrors(errorDescription) {
-		fmt.Println("ERROR AT RESPONSE MESSAGE")
+	for i := 0; i < len(s.sourceLinks); i++ {
+		response, errorDescription := client.Get(s.sourceLinks[i])
+
+		CheckError(errorDescription, "ERROR AT RESPONSE MESSAGE")
+
+		defer response.Body.Close()
+
+		curContent, errorDescription := ioutil.ReadAll(response.Body)
+
+		CheckError(errorDescription, "ERROR AT READING RESPONSE BODY")
+
+		result += string(curContent) + "\n************************************************************"
 	}
 
-	defer response.Body.Close()
-
-	result, errorDescription := ioutil.ReadAll(response.Body)
-
-	if !CheckErrors(errorDescription) {
-		fmt.Println("ERROR AT READING RESPONSE BODY")
-	}
-
-	return string(result)
+	return result
 }
 
-func CheckErrors(err error) bool {
+func (s *Source) RunSellerRegexes(content string) []Article {
+	var matchedContent []string
+	var result []Article
+
+	for i := 0; i < len(s.sourceRegexes); i++ {
+		regex, errorDescription := regexp.Compile(s.sourceRegexes[i])
+		CheckError(errorDescription, "REGEX")
+
+		matchedContent = append(matchedContent, regex.FindAllString(content, -1)...)
+	}
+
+	return result
+}
+
+func CheckError(err error, message string) bool {
 	result := false
 
-	if err == nil {
+	if err != nil {
+		fmt.Println(message)
+		fmt.Print(err.Error())
 		result = true
 	}
 

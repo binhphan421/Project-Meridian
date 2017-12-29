@@ -17,8 +17,9 @@ import (
 
 /**
 * TODO:	Convert Meridian Into Server Based Crawler
-		Crawl on request, with 1 minute restriction
-		Crawl automatically every two hours
+		Set up seperation of content into Article struct
+		Crawl on request, with 30 minute restriction
+		Crawl automatically every one-two hours
 		Store Information
 
 		Project Meridian - Server Side Crawler
@@ -57,6 +58,9 @@ func GrabArticlesFromSourceId(sourceType string, globalHttpClient *http.Client) 
 	if sourceType == "1" {
 		fmt.Println("Retrieving ESPN Data")
 		content = espnSource.RetrieveSearchContent(globalHttpClient)
-		fmt.Println(content)
+
+		//Will seperate this into source specific parsing soon
 	}
+
+	espnSource.RunSellerRegexes(content)
 }
