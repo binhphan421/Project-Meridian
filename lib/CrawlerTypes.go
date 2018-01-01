@@ -75,6 +75,8 @@ func (s *Source) RetrieveSearchContent(client *http.Client) string {
 	return result
 }
 
+//is it possible to make this more efficient? 2 for loops - O(2n) - O(n) - running time, not bad, but can it be
+//BETTER?
 func (s *Source) RunSellerRegexes(content string) []Article {
 	var matchedContent []string
 	var result []Article
@@ -84,6 +86,14 @@ func (s *Source) RunSellerRegexes(content string) []Article {
 		CheckError(errorDescription, "REGEX")
 
 		matchedContent = append(matchedContent, regex.FindAllString(content, -1)...)
+	}
+
+	var temp []Article
+	for i := 0; i < len(matchedContent); i++ {
+		//Parse Out Data in matched Content here
+		//TODO: Make a RegexType class to show what kind of value is the regex trying to parse, eg. Title, etc.
+		//Once done, replace sourceRegex with new Regex Type
+
 	}
 
 	return result
